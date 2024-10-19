@@ -1,8 +1,5 @@
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Label } from "@/components/ui/label";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -14,30 +11,13 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { Pause, Play } from "lucide-react";
-
-// Sample questions
-const questions = [
-  {
-    id: 1,
-    question: "What is the capital of France?",
-    options: ["London", "Berlin", "Paris"],
-  },
-  {
-    id: 2,
-    question: "Which planet is known as the Red Planet?",
-    options: ["Venus", "Mars", "Jupiter"],
-  },
-  {
-    id: 3,
-    question: "Who painted the Mona Lisa?",
-    options: ["Vincent van Gogh", "Leonardo da Vinci", "Pablo Picasso"],
-  },
-];
+import { questions } from "@/mocks/questions.mock";
+import { formatTime } from "@/helpers/date";
+import { Question } from "@/components/question/question";
 
 export default function TakeExam() {
   const [time, setTime] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [answers, setAnswers] = useState({});
   const [isEndTestModalOpen, setIsEndTestModalOpen] = useState(false);
   const [isTestEnded, setIsTestEnded] = useState(false);
 
@@ -53,23 +33,8 @@ export default function TakeExam() {
     };
   }, [isPaused, isTestEnded]);
 
-  const formatTime = (seconds: number) => {
-    const minutes = Math.floor(seconds / 60);
-    const remainingSeconds = seconds % 60;
-    return `${minutes.toString().padStart(2, "0")}:${remainingSeconds
-      .toString()
-      .padStart(2, "0")}`;
-  };
-
   const handlePauseResume = () => {
     setIsPaused(!isPaused);
-  };
-
-  const handleAnswerChange = (questionId: number, answer: string) => {
-    setAnswers((prevAnswers) => ({
-      ...prevAnswers,
-      [questionId]: answer,
-    }));
   };
 
   const handleEndTest = () => {
@@ -110,27 +75,12 @@ export default function TakeExam() {
       </div>
 
       <div className="space-y-8 flex-grow">
-        {questions.map((q) => (
-          <Card key={q.id}>
-            <CardContent className="pt-6">
-              <h2 className="text-xl font-semibold mb-4">{q.question}</h2>
-              <RadioGroup
-                onValueChange={(value) => handleAnswerChange(q.id, value)}
-                value={answers[q.id] || ""}
-                disabled={isTestEnded}
-              >
-                {q.options.map((option, index) => (
-                  <div className="flex items-center space-x-2" key={index}>
-                    <RadioGroupItem
-                      value={option}
-                      id={`q${q.id}-option${index}`}
-                    />
-                    <Label htmlFor={`q${q.id}-option${index}`}>{option}</Label>
-                  </div>
-                ))}
-              </RadioGroup>
-            </CardContent>
-          </Card>
+        {questions.map((question) => (
+          <Question
+            key={question.id}
+            question={question}
+            isTestEnded={isTestEnded}
+          />
         ))}
       </div>
 
