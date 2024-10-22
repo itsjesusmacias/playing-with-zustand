@@ -1,50 +1,56 @@
-# React + TypeScript + Vite
+# Stopwatcher - Take Exam
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Este proyecto implementa un sistema de temporizador para una página donde los usuarios pueden realizar un test con un temporizador que pueden pausar y reanudar. Se ha utilizado Zustand para gestionar el estado del temporizador.
 
-Currently, two official plugins are available:
+## Instalación
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+Para ejecutar este proyecto, asegúrate de tener las siguientes versiones instaladas:
 
-## Expanding the ESLint configuration
+- **Node.js**: v20.x.x
+- **npm**: v9.x.x
+- **pnpm**: v8.x.x
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+Sigue los siguientes pasos:
 
-- Configure the top-level `parserOptions` property like this:
+1. Clona el repositorio:
+   ```bash
+   git clone git@github.com:itsjesusmacias/playing-with-zustand.git
+   ```
+2. Instala las dependencias usando pnpm:
+   ```bash
+   pnpm install
+   ```
+3. Ejecuta la aplicación en modo desarrollo:
+   ```bash
+   pnpm run dev
+   ```
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
-```
+## Descripción
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+El temporizador comienza en un valor inicial y permite a los usuarios pausar el tiempo y continuar desde donde lo dejaron. Esta solución utiliza una **store** global gestionada con Zustand para garantizar que el estado del temporizador sea consistente en toda la aplicación, incluso si se realizan acciones como pausas o reanudaciones.
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+## Motivación
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
-```
+Decidí utilizar una store con Zustand para gestionar el temporizador en lugar de alternativas como el uso directo de `setInterval` por varias razones:
+
+1. **Consistencia en el estado**: Zustand nos permite centralizar y controlar el estado del temporizador de forma eficiente sin afectar otros componentes.
+2. **Manejo de pausas**: Utilizando una store, se almacenan datos como la hora de inicio y el tiempo transcurrido al pausar. Esto evita desajustes en el temporizador, especialmente en situaciones donde el hilo principal de JavaScript se bloquea.
+3. **Menor mutación global**: Evitar un `setInterval` que constantemente actualice el estado global. En su lugar, el componente solo lee del store cada cierto intervalo, lo que hace el código más limpio y reduce la carga.
+4. **Desempeño**: Al manejar los tiempos de pausa y reanudación usando registros de tiempo en lugar de incrementar un contador, evitamos desfases si el hilo de JavaScript se bloquea temporalmente.
+
+## Detalles técnicos
+
+### Store del Temporizador con Zustand
+
+La [**store** del temporizador](./src/provider/take-exam/take-exam-slices.ts) maneja cuatro acciones principales:
+
+- **startTimer**: Inicia el temporizador.
+- **pauseTimer**: Pausa el temporizador y almacena el tiempo transcurrido.
+- **resetTimer**: Restablece el temporizador a su valor inicial.
+- **elapsedTimeOnPause**: Almacena el tiempo que ha pasado mientras el temporizador estaba pausado, para continuar desde el punto correcto al reanudar.
+
+### Hook useStopwatch
+
+El componente utiliza un hook personalizado llamado [useStopwatch](./src/hooks/use-stopwatch/use-stopwatch.ts) que interactúa con la store para mostrar el tiempo transcurrido correctamente. El hook usa un useEffect con un intervalo que actualiza el estado cada cierto tiempo solo si el temporizador está en ejecución.
+
+Esta aproximación evita los problemas que surgen si el hilo de JavaScript se bloquea, ya que el temporizador siempre utiliza las marcas de tiempo para calcular el tiempo transcurrido en lugar de depender de un intervalo continuo.
