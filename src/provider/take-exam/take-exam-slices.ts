@@ -1,53 +1,24 @@
 import { StateCreator } from "zustand";
-import { TimerStoreSlice, TakeExamModalsSlice } from "./take-exam-model";
+import { TimerStoreSlice } from "./take-exam-model";
 
-const createTakeExamModalsSlice: StateCreator<
-  TimerStoreSlice & TakeExamModalsSlice,
-  [],
-  [],
-  TakeExamModalsSlice
-> = (set) => ({
-  modals: {
-    isEndTestModalOpen: false,
-    openEndTestModal: () =>
-      set((state) => {
-        const modals = state.modals;
-        return {
-          ...state,
-          modals: { ...modals, isEndTestModalOpen: true },
-        };
-      }),
-    closeEndTestModal: () =>
-      set((state) => {
-        const modals = state.modals;
-        return {
-          ...state,
-          modals: { ...modals, isEndTestModalOpen: false },
-        };
-      }),
-  },
-});
-
-const createTimerSlice: StateCreator<
-  TimerStoreSlice & TakeExamModalsSlice,
-  [],
-  [],
-  TimerStoreSlice
-> = (set) => ({
+const createTimerSlice: StateCreator<TimerStoreSlice> = (set) => ({
   timer: {
     startTimestamp: null,
     elapsedTimeOnPause: 0,
     isRunning: false,
     initialTime: 0,
 
+    // TODO Iniciar el initialTime para hacer funcionar el countdown
+    // XXXXX: () => {}
+
     startTimer: () =>
       set((state) => {
         if (state.timer.isRunning) {
           return state;
         }
+
         const timer = state.timer;
         return {
-          ...state,
           timer: {
             ...timer,
             isRunning: true,
@@ -71,7 +42,6 @@ const createTimerSlice: StateCreator<
         const elapsedTimeOnPause = timer.elapsedTimeOnPause + timeElapsed;
 
         return {
-          ...state,
           timer: {
             ...timer,
             isRunning: false,
@@ -85,7 +55,6 @@ const createTimerSlice: StateCreator<
       set((state) => {
         const timer = state.timer;
         return {
-          ...state,
           timer: {
             ...timer,
             startTimestamp: null,
@@ -98,4 +67,4 @@ const createTimerSlice: StateCreator<
   },
 });
 
-export { createTakeExamModalsSlice, createTimerSlice };
+export { createTimerSlice };

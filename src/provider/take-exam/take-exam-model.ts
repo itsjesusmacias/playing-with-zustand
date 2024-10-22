@@ -1,11 +1,3 @@
-interface TakeExamModalsSlice {
-  modals: {
-    isEndTestModalOpen: boolean;
-    openEndTestModal: () => void;
-    closeEndTestModal: () => void;
-  };
-}
-
 interface TimerStoreSlice {
   timer: {
     startTimestamp: number | null;
@@ -18,4 +10,4 @@ interface TimerStoreSlice {
   };
 }
 
-export type { TimerStoreSlice, TakeExamModalsSlice };
+export type { TimerStoreSlice };
