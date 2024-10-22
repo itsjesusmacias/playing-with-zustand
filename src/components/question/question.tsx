@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
+import { useTakeExamStore } from "@/provider/take-exam/take-exam-store";
 
 interface QuestionProps {
   question: {
@@ -9,16 +10,16 @@ interface QuestionProps {
     question: string;
     options: string[];
   };
-  isTestEnded: boolean;
 }
 
 type AnswersState = {
   [key: number]: string;
 };
 
-const Question = ({ question, isTestEnded }: QuestionProps) => {
-  // TODO Zustand - isTestEnded, Answers, handleAnswerChange
+const Question = ({ question }: QuestionProps) => {
+  // TODO Zustand
   const [answers, setAnswers] = useState<AnswersState>({});
+  const isRunning = useTakeExamStore((state) => state.timer.isRunning);
 
   const handleAnswerChange = (questionId: number, answer: string) => {
     setAnswers((prevAnswers) => ({
@@ -34,7 +35,7 @@ const Question = ({ question, isTestEnded }: QuestionProps) => {
         <RadioGroup
           onValueChange={(value) => handleAnswerChange(question.id, value)}
           value={answers[question.id] || ""}
-          disabled={isTestEnded}
+          disabled={!isRunning}
         >
           {question.options.map((option, index) => (
             <div className="flex items-center space-x-2" key={index}>
